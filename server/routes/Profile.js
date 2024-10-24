@@ -21,7 +21,7 @@ router.delete("/deleteProfile", auth, deleteAccount);
 router.put("/updateProfile", auth, updateProfile);
 router.get("/getUserDetails", auth, getUserDetails);
 router.get("/getUserProfile", auth, getUserProfile);
-router.get("/getAllUsers", auth, getAllUsers);
+router.get("/getAllUsers", getAllUsers);
 router.put("/updateDisplayPicture", auth, updateDisplayPicture);
 
 // router.get("/follow", auth, getPendingFollowingRequests);

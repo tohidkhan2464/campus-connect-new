@@ -30,7 +30,7 @@ const FollowBar = () => {
 
   useEffect(() => {
     (async () => {
-      const result = await getAllUsers(token);
+      const result = await getAllUsers();
       const filteredData = result.filter(
         (data) => data.userName !== user.userName
       );

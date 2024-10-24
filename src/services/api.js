@@ -67,8 +67,8 @@ export const settingsEndpoints = {
 
 // Search APIs
 export const searchEndpoints = {
-  POST_SEARCH_API: BASE_URL + "/search/post",
-  USER_SEARCH_API: BASE_URL + "/search/user",
-  NEWS_SEARCH_API: BASE_URL + "/search/news",
-  SEARCH_HOME_PAGE_API: BASE_URL + "/search",
+  SEARCH_BY_COLLEGE_API: BASE_URL + "/search/postByCollege",
+  USER_SEARCH_API: BASE_URL + "/search/searchUser",
+  POST_SEARCH_API: BASE_URL + "/search/searchPost",
+  RANDOM_SEARCH_API: BASE_URL + "/search/random",
 };

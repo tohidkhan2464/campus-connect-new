@@ -4,7 +4,7 @@ const app = express();
 
 const userRoutes = require("./routes/User");
 const profileRoutes = require("./routes/Profile");
-// const searchRoutes = require("./routes/Search");
+const searchRoutes = require("./routes/Search");
 const postRoutes = require("./routes/Post");
 const notificationRoutes = require("./routes/Notification");
 // const messageRoutes = require("./routes/Message");
@@ -32,7 +32,7 @@ app.use("/api/v1/profile", profileRoutes);
 // app.use("/api/v1/message", messageRoutes);
 app.use("/api/v1/notification", notificationRoutes);
 app.use("/api/v1/post", postRoutes);
-// app.use("/api/v1/search", searchRoutes);
+app.use("/api/v1/search", searchRoutes);
 
 app.get("/", (req, res) => {
   res.json({

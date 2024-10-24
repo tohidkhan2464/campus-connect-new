@@ -4,28 +4,27 @@ import { useUserStore } from "../../../lib/userStore";
 import { auth, db } from "../../../lib/firebase";
 import { usechatStore } from "../../../lib/chatStore";
 import { arrayRemove, arrayUnion, doc, updateDoc } from "firebase/firestore";
+import toast from "react-hot-toast";
 
 const Detail = () => {
     const { currentUser } = useUserStore();
     const { user, chatId, isCurrentUserBlocked, changeBlock, isReceiverBlocked } = usechatStore();
-
+    // console.log("currentUser details", currentUser);
+    // console.log("user details", user);
+    // console.log("isCurrentUserBlocked details", isCurrentUserBlocked);
+    // console.log("isReceiverBlocked details", isReceiverBlocked);
     const handleBlock = async () => {
         if (!user) return;
-
         const userDocRef = doc(db, "users", currentUser.id);
         try {
-
             await updateDoc(userDocRef, {
                 blocked: isReceiverBlocked ? arrayRemove(user.id) : arrayUnion(user.id)
             });
-
             changeBlock();
-
         } catch (error) {
-            console.log("error", error);
-
+            // console.log("error", error);
+            toast.error("Failed to block user");
         }
-
     }
 
     return (
@@ -33,7 +32,7 @@ const Detail = () => {
             <div className="user">
                 <img src={user?.avatar || "./assets/avatar.png"} alt="" />
                 <h2>{user?.username || "User"}</h2>
-                <p>Lorem ipsum dolor sit amet consectetur adipisicing.</p>
+                <p>{user?.additionalDetails?.about || "Write something about yourself."}</p>
             </div>
             <div className="info">
                 <div className="option">

@@ -4,7 +4,7 @@
     flex: 2;
     border-left: 1px solid #dddddd35;
     border-right: 1px solid #dddddd35;
-    height:800px;
+    height: 800px;
 
     .top {
         padding: 20px;
@@ -34,6 +34,7 @@
                 span {
                     font-size: 18px;
                     font-weight: bold;
+                    color: white;
                 }
 
                 p {
@@ -72,6 +73,7 @@
             display: flex;
             gap: 20px;
             align-self: flex-start;
+           
 
             &.own {
                 align-self: flex-end;
@@ -107,10 +109,12 @@
                     padding: 20px;
                     background-color: rgba(17, 25, 40, .3);
                     border-radius: 10px;
+                    color: white;
                 }
 
                 span {
                     font-size: 13px;
+                    color: darkgray;
                 }
             }
         }

@@ -3,11 +3,18 @@ import './adduser.css'
 import { arrayUnion, collection, doc, getDocs, query, serverTimestamp, setDoc, updateDoc, where } from "firebase/firestore";
 import { db } from "../../../../../lib/firebase";
 import { useUserStore } from "../../../../../lib/userStore";
+import { useDispatch, useSelector } from "react-redux";
+import { getUserProfile, sendFollowRequest } from "../../../../../services/operations/profileAPI";
+import { setOtherUsersData } from "../../../../../redux/slices/authSlice";
+import toast from "react-hot-toast";
 
-const AddUser = ({addMode, setAddmode}) => {
+const AddUser = () => {
 
     const [user, setUser] = useState(null);
+    const { otherUsersData, token } = useSelector((state) => state.auth)
     const { currentUser } = useUserStore();
+    const dispatch = useDispatch()
+
     const handleSearch = async (event) => {
         event.preventDefault();
 
@@ -18,54 +25,70 @@ const AddUser = ({addMode, setAddmode}) => {
             const userRef = collection(db, "users");
             const q = query(userRef, where("username", "==", username));
             const querySnapShot = await getDocs(q);
+            const userDataResult = await getUserProfile(token, username);
 
             if (!querySnapShot.empty) {
-                setUser(querySnapShot.docs[0].data());
+                setUser({ ...userDataResult, ...querySnapShot.docs[0].data() });
+                dispatch(setOtherUsersData({ ...userDataResult, ...querySnapShot.docs[0].data() }))
             }
 
 
         } catch (error) {
-            console.log("error", error);
+            // console.log("error", error);
+            toast.error("User not found");
         }
 
     }
+    // console.log("otherUsersData", otherUsersData);
+    // console.log("user", user);
+    // console.log("currentUser", currentUser);
 
     const handleAdd = async (event) => {
-        const chatRef = collection(db, "chats");
-        const userChatsRef = collection(db, "userchats");
+        const followRequestResult = await sendFollowRequest(token, user.id);
+        if (followRequestResult.receiverUserDetails._id === user.id) {
 
-        try {
-            const newChatRef = doc(chatRef);
+            const chatRef = collection(db, "chats");
+            const userChatsRef = collection(db, "userchats");
 
-            await setDoc(newChatRef, {
-                createdAt: serverTimestamp(),
-                messages: [],
-            });
+            try {
+                const newChatRef = doc(chatRef);
 
-            await updateDoc(doc(userChatsRef, user.id), {
-                chats: arrayUnion({
-                    chatId: newChatRef.id,
-                    lastMessage: "",
-                    receiverId: currentUser.id,
-                    updatedAt: Date.now(),
-                })
-            });
+                await setDoc(newChatRef, {
+                    createdAt: serverTimestamp(),
+                    messages: [],
+                });
 
-            await updateDoc(doc(userChatsRef, currentUser.id), {
-                chats: arrayUnion({
-                    chatId: newChatRef.id,
-                    lastMessage: "",
-                    receiverId: user.id,
-                    updatedAt: Date.now(),
-                })
-            });
+                await updateDoc(doc(userChatsRef, user.id), {
+                    chats: arrayUnion({
+                        chatId: newChatRef.id,
+                        lastMessage: "",
+                        receiverId: currentUser.id,
+                        updatedAt: Date.now(),
+                    })
+                });
 
-            console.log("newChatRef", newChatRef.id);
-            setAddmode(!addMode);
-        } catch (error) {
-            console.log("error", error);
+                await updateDoc(doc(userChatsRef, currentUser.id), {
+                    chats: arrayUnion({
+                        chatId: newChatRef.id,
+                        lastMessage: "",
+                        receiverId: user.id,
+                        updatedAt: Date.now(),
+                    })
+                });
 
+
+                // console.log("newChatRef", newChatRef.id);
+
+            } catch (error) {
+                // console.log("error", error);
+                toast.error("Error in creating chat");
+
+            }
+        }  else {
+            // console.log("Error in sending follow request");
+            toast.error("Error in sending follow request");
         }
+
     }
 
     return (

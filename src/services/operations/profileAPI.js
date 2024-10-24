@@ -68,7 +68,7 @@ export const getUserProfile = async (token, userName) => {
   return result;
 };
 
-export async function getAllUsers(token) {
+export async function getAllUsers() {
   const toastId = toast.loading("loading...");
   let result = [];
   try {
@@ -76,9 +76,7 @@ export async function getAllUsers(token) {
       method: "GET",
       url: GET_ALL_USERS_API,
       bodyData: null,
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
+      
     });
 
     // console.log("RESPONSE GET_ALL_USERS_API", response)
@@ -109,7 +107,7 @@ export async function sendFollowRequest(receivingUserId, token) {
       },
     });
 
-    // console.log("RESPONSE GET_ALL_USERS_API", response);
+    // console.log("RESPONSE SEND_FOLLOW_REQUEST_API", response);
 
     if (!response.data.success) {
       throw new Error(response.data.message);
@@ -117,7 +115,7 @@ export async function sendFollowRequest(receivingUserId, token) {
 
     result = response?.data?.data;
   } catch (error) {
-    toast.error("Could not get Enrolled Courses.");
+    toast.error("Could not SEND_FOLLOW_REQUEST_API.");
   }
   toast.dismiss(toastId);
   return result;

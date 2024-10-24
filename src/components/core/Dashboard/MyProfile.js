@@ -6,14 +6,14 @@ import { Link } from "react-router-dom";
 
 const MyProfile = () => {
   const { user } = useSelector((state) => state.profile);
-  // console.log("USER", user);
+  console.log("USER", user);
   return (
     <div>
       <div className="mt-16 w-full h-full flex items-center justify-center">
         <div className="w-8/12 mx-auto h-full flex items-center justify-center">
           {/* Heading */}
           <div className="h-full w-11/12 flex flex-col items-center justify-center gap-y-5">
-            <p className="text-center text-2xl font-semibold">My Profile</p>
+            <p className="text-center text-4xl underline font-semibold">My Profile</p>
             <div className="flex flex-col justify-center items-center w-10/12 gap-y-10">
               {/* Details div */}
               <div
@@ -25,10 +25,10 @@ const MyProfile = () => {
                   <div className="relative border-[2px] border-secondary-600 cursor-pointer group p-2 rounded-full  h-44 w-44">
                     <img
                       src={user?.profileImage}
-                      className="h-full w-full rounded-full group-hover:opacity-80"
+                      className="h-full w-full rounded-full group-hover:blur-[4px] transition-all duration-200"
                     />
 
-                    <CiEdit className="text-5xl hidden group-hover:flex z-50 text-secondary-900 group-hover:scale-125 cursor-pointer absolute bottom-1 left-[50%] translate-x-[-50%] transition-all duration-200" />
+                    <CiEdit className="text-5xl hidden group-hover:flex z-50 text-secondary-900 transition-all duration-200 group-hover:scale-125 cursor-pointer absolute bottom-1 left-[50%] translate-x-[-50%]" />
                   </div>
                 </Link>
 

@@ -6,16 +6,18 @@ import { arrayUnion, doc, getDoc, getDocs, onSnapshot, updateDoc } from "firebas
 import { db } from "../../../lib/firebase";
 import { usechatStore } from "../../../lib/chatStore";
 import upload from "../../../lib/uploads";
+import toast from "react-hot-toast";
 
 const Chat = () => {
     const { currentUser } = useUserStore();
     const { chatId, user, isCurrentUserBlocked, isReceiverBlocked } = usechatStore();
-
+    // console.log("isCurrentUserBlocked", isCurrentUserBlocked);
+    // console.log("isReceiverBlocked", isReceiverBlocked);
     const [openEmoji, setOpenEmoji] = React.useState(false);
     const [text, setText] = React.useState("");
     const [img, setImg] = React.useState({ file: null, url: "" });
     const [chat, setChat] = React.useState({ messages: [] });
-    console.log("chat", chat);
+    // console.log("chat", chat);
     const endRef = useRef(null);
     useEffect(() => {
         if (endRef.current) {
@@ -24,12 +26,12 @@ const Chat = () => {
     }, [chat?.messages, chatId, img]);
 
     const handleEmoji = (event) => {
-        console.log(event);
+        // console.log(event);
         setText((prev) => prev + event.emoji);
     }
 
     const handleImg = (event) => {
-        console.log("object", event);
+        // console.log("object", event);
         if (event.target.files[0]) {
             setImg({
                 file: event.target.files[0],
@@ -89,7 +91,8 @@ const Chat = () => {
             });
 
         } catch (error) {
-            console.log(error);
+            // console.log(error);
+            toast.error("Failed to send message");
         }
         setImg({ file: null, url: "" });
         setText("");
@@ -102,7 +105,7 @@ const Chat = () => {
                     <img src={user?.avatar || "./assets/avatar.png"} alt="" />
                     <div className="texts">
                         <span>{user?.username || "User"}</span>
-                        <p>Lorem ipsum dolor s?</p>
+                        <p>{user?.additionalDetails?.about || "Write something about yourself."}</p>
                     </div>
                 </div>
                 <div className="icons">

@@ -133,7 +133,7 @@ exports.signUp = async (req, res) => {
       .sort({ createdAt: -1 })
       .limit(1);
 
-      // validation of otp
+    // validation of otp
     if (recentOtp.length === 0) {
       // OTP not found
       return res.status(400).json({
@@ -172,6 +172,7 @@ exports.signUp = async (req, res) => {
       success: true,
       message: "User is registered Successfully.",
       user,
+      profileDetails,
     });
   } catch (err) {
     console.log(err);
@@ -208,7 +209,7 @@ exports.login = async (req, res) => {
     }
     // check user exists or not
     // let user = await User.findOne({ email }).populate("additionalDetails");
-
+    console.log("user login", user);
     if (!user) {
       return res.status(401).json({
         success: false,

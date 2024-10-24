@@ -34,7 +34,7 @@ const Sidebar = () => {
                       <img
                         src={user?.profileImage}
                         alt="Profile Photo"
-                        className="h-6 w-6 rounded-full"
+                        className="h-8 w-8 rounded-full"
                       />
                       <p>{link.title}</p>
                     </div>
@@ -48,7 +48,7 @@ const Sidebar = () => {
                           : "text-secondary-900 "
                       }`}
                     >
-                      <Icon className="text-2xl" />
+                      <Icon className="text-3xl" />
                       <p>{link.title}</p>
                     </div>
                   </Link>

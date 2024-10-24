@@ -14,7 +14,10 @@ const UserInfo = () => {
       <div className="user">
 
         <img src={user?.profileImage || "./assets/avatar.png"} className="img" alt="" onClick={() => navigate("/my-profile")} />
-        <h2 onClick={() => navigate("/my-profile")}>{currentUser?.username}</h2>
+        <div className="username">
+          <h2 onClick={() => navigate("/my-profile")}>{currentUser?.username}</h2>
+          <p>{user?.additionalDetails?.about}</p>
+        </div>
       </div>
       <div className="icons">
         <img src="./assets/edit.png" alt="" className="img" onClick={() => navigate(`/my-profile/${currentUser?.username}`)} />

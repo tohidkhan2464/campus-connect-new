@@ -3,6 +3,8 @@ import { setLoading, setToken } from "../../redux/slices/authSlice";
 import { setUser } from "../../redux/slices/profileSlice";
 import { apiConnector } from "../apiConnector";
 import { settingsEndpoints } from "../api";
+import { doc, updateDoc } from "firebase/firestore";
+import { db } from "../../lib/firebase";
 
 const {
   UPDATE_DISPLAY_PICTURE_API,
@@ -12,7 +14,7 @@ const {
 } = settingsEndpoints;
 
 export function updateProfile(token, data) {
-  // console.log("DATA", data);
+  console.log("DATA", data);
   return async (dispatch) => {
     const toastId = toast.loading("Loading...");
     dispatch(setLoading(true));
@@ -29,18 +31,26 @@ export function updateProfile(token, data) {
 
       if (!response.data.success) {
         throw new Error(response.data.message);
+      } else {
+        await updateDoc(
+          doc(db, "users", response.data.updatedUserDetails._id),
+          {
+            additionalDetails: data,
+          }
+        );
+
+        dispatch(
+          setUser({
+            ...response.data.updatedUserDetails,
+            ...response.data.updatedUserDetails.additionalDetails,
+          })
+        );
+        localStorage.setItem(
+          "user",
+          JSON.stringify(response.data.updatedUserDetails)
+        );
+        toast.success("Update Successful");
       }
-      dispatch(
-        setUser({
-          ...response.data.updatedUserDetails,
-          ...response.data.updatedUserDetails.additionalDetails,
-        })
-      );
-      localStorage.setItem(
-        "user",
-        JSON.stringify(response.data.updatedUserDetails)
-      );
-      toast.success("Update Successful");
     } catch (error) {
       toast.error(error?.response?.data?.message || "Failed");
     }
@@ -63,21 +73,28 @@ export function updateDisplayPicture(token, formData) {
         },
       });
 
-      // console.log("UPDATE_DISPLAY_PICTURE_API RESPONSE .... ", response);
+      console.log("UPDATE_DISPLAY_PICTURE_API RESPONSE .... ", response);
       if (!response.data.success) {
         throw new Error(response.data.message);
+      } else {
+        await updateDoc(
+          doc(db, "users", response.data.updatedUserDetails._id),
+          {
+            avatar: response.data.image_url,
+          }
+        );
+
+        toast.success("Display Picture Updated Successfully");
+
+        dispatch(
+          setUser({
+            ...response.data.updatedUserDetails,
+            profileImage: response.data.image_url,
+          })
+        );
+
+        localStorage.setItem("user", JSON.stringify(response.data.image_url));
       }
-
-      toast.success("Display Picture Updated Successfully");
-
-      dispatch(
-        setUser({
-          ...response.data.updatedUserDetails,
-          profileImage: response.data.image_url,
-        })
-      );
-
-      localStorage.setItem("user", JSON.stringify(response.data.image_url));
     } catch (error) {
       toast.error("Could Not Update Display Picture");
     }

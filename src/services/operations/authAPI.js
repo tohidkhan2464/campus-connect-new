@@ -138,8 +138,10 @@ export function signUp(
         await setDoc(doc(db, "users", response.data.user._id), {
           username: userName,
           email,
-          _id: res.user.uid,
+          firebaseId: res.user.uid,
           id: response.data.user._id,
+          avatar: `https://api.dicebear.com/5.x/initials/svg?seed=${firstName} ${lastName}`,
+          additionalDetails: {},
           blocked: [],
         });
         await setDoc(doc(db, "userchats", response.data.user._id), {

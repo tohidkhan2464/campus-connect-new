@@ -9,11 +9,8 @@ import PrivateRoute from "./components/core/Auth/PrivateRoute";
 import Dashboard from "./pages/Dashboard";
 import MyDash from "./components/core/Dashboard/MyDash";
 import Navbar from "./components/common/Navbar";
-// import Messages from "./components/core/Dashboard/Messages";
-// import Notifications from "./components/core/Dashboard/Notifications";
 import Post from "./components/core/Dashboard/PostDetails";
 import MyProfile from "./components/core/Dashboard/MyProfile";
-// import Search from "./components/core/Dashboard/Search";
 import CreatePost from "./components/core/Dashboard/CreatePost";
 import PostCard from "./pages/PostCard";
 import Settings from "./components/core/Dashboard/MyProfile/Settings";
@@ -25,12 +22,13 @@ import Messages from "./pages/Messages";
 import { onAuthStateChanged } from "firebase/auth";
 import { useUserStore } from "./lib/userStore";
 import { auth } from "./lib/firebase";
-// import { ACCOUNT_TYPE } from "./utils/constants";
-// import Broadcast from "./components/core/Dashboard/Broadcast";
+import Search from "./pages/Search";
+import SearchResults from "./pages/SearchResults";
 
 function App() {
   const { user } = useSelector((state) => state.profile);
 
+  // console.log("user", user);
   const { fetchUserInfo } = useUserStore();
 
   useEffect(() => {
@@ -80,11 +78,12 @@ function App() {
             <Route path="/profile/:userName" element={<OtherUserProfile />} />
             <Route path="/activity" element={<Activity />} />
             <Route path="/messages" element={<Messages />} />
-            {/* <Route path="/notifications" element={<Notifications />} /> */}
             <Route path="/user-posts" element={<Post />} />
             <Route path="/view-post/:postId" element={<PostCard />} />
             <Route path="/create" element={<CreatePost />} />
-            {/* <Route path="/search" element={<Search />} /> */}
+            <Route path="/search" element={<Search />} />
+            <Route path="/searchResults" element={<SearchResults />} />
+            {/* <Route path="/notifications" element={<Notifications />} /> */}
             {/* {user?.accountType === ACCOUNT_TYPE.INSTRUCTOR && (
               <>
                 <Route path="/dashboard/my-courses" element={<Broadcast />} />

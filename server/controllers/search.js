@@ -1,6 +1,5 @@
 const User = require("../models/User");
 const Post = require("../models/Post");
-const Profile = require("../models/Profile");
 
 exports.getCollegeNews = async (req, res) => {
   try {
@@ -19,7 +18,10 @@ exports.getCollegeNews = async (req, res) => {
       });
     }
 
-    const posts = await Post.find({}).sort({ postedAt: -1 });
+    const userIds = usersCollegues.map((user) => user._id);
+    const posts = await Post.find({ userId: { $in: userIds } }).sort({
+      postedAt: -1,
+    });
 
     if (!posts) {
       return res.status(200).json({
@@ -86,24 +88,23 @@ exports.searchUser = async (req, res) => {
 
 exports.searchPost = async (req, res) => {
   try {
-    const { category = "", userName = "" } = req.body;
+    const { tags = "", userName = "" } = req.body;
 
     const posts = [];
 
     if (userName) {
-      const profileDetails = await Profile.find({}, { userName: userName });
-      console.log("Profile Details -> ", profileDetails);
-      const userDetails = await User.find({
-        additionalDetails: profileDetails[0]._id,
-      })
+      const userDetails = await User.find({}, { userName: userName })
         .populate("posts")
         .exec();
       console.log("UserDetails-> ", userDetails);
-      posts.push(userDetails);
+      const postDetails = await Post.find({ userId: userDetails._id }).sort({
+        postedAt: -1,
+      });
+      posts.push(postDetails);
     }
 
-    if (category) {
-      const postDetails = await Post.find({ category: category });
+    if (tags) {
+      const postDetails = await Post.find({ tags: { $in: tags.split(" ") } });
       posts.push(postDetails);
     }
 
@@ -130,21 +131,9 @@ exports.searchPost = async (req, res) => {
 
 exports.searchHome = async (req, res) => {
   try {
-    const { category = "" } = req.body;
-
-    const posts = [];
-
-    if (category) {
-      const postDetails = await Post.find({ category: category }).sort({
-        postedAt: -1,
-      });
-      posts.push(postDetails);
-    }
-
     const postDetails = await Post.find({}).sort({ postedAt: -1 });
-    posts.push(postDetails);
 
-    if (!posts) {
+    if (!postDetails) {
       return res.status(404).json({
         success: false,
         message: "No posts found",
@@ -154,7 +143,7 @@ exports.searchHome = async (req, res) => {
     return res.status(200).json({
       success: true,
       message: "posts found",
-      posts: posts,
+      posts: postDetails,
     });
   } catch (err) {
     console.log(err);

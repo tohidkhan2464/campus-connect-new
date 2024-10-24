@@ -5,65 +5,63 @@ import { useUserStore } from "../../../../lib/userStore.js";
 import { doc, getDoc, onSnapshot, updateDoc } from "firebase/firestore";
 import { db } from "../../../../lib/firebase";
 import { usechatStore } from "../../../../lib/chatStore";
+import toast from "react-hot-toast";
 
 const ChatList = () => {
     const { currentUser } = useUserStore();
     const { changeChat } = usechatStore();
-
     const [addMode, setAddMode] = React.useState(false);
     const [input, setInput] = React.useState('');
     const [chats, setChats] = React.useState([]);
-
-    console.log("currentUser", currentUser);
+    // console.log("currentUser chatlist", currentUser);
 
     useEffect(() => {
         const unSub = onSnapshot(doc(db, "userchats", currentUser?.id), async (res) => {
-            const items = res.data().chats;
-
-            console.log("object", res.data());
-            const promises = items.map(async (item) => {
-                const userDocRef = doc(db, "users", item.receiverId);
-                const userDocSnap = await getDoc(userDocRef);
-
-                const user = userDocSnap.data();
-
-                return { ...item, user };
-            });
-
-            const chatData = await Promise.all(promises);
-
-            setChats(chatData.sort((a, b) => b.updatedAt - a.updatedAt));
-
+            console.log("object", res.data().chats);
+            if (res.exists() && res.data().chats) {
+                const items = res.data().chats;
+                const promises = items.map(async (item) => {
+                    const userDocRef = doc(db, "users", item.receiverId);
+                    const userDocSnap = await getDoc(userDocRef);
+                    const user = userDocSnap.data();
+                    return { ...item, user };
+                });
+                const chatData = await Promise.all(promises);
+                setChats(chatData.sort((a, b) => b.updatedAt - a.updatedAt));
+            }
         });
-
         return () => {
             unSub();
         };
     }, [currentUser?.id])
 
     console.log("chats", chats);
-
     const handleSelect = async (chat) => {
-
         const userChats = chats.map((item) => {
             const { user, ...rest } = item;
             return rest;
-
         });
         const chatIndex = userChats.findIndex((item) => item.chatId === chat.chatId);
         userChats[chatIndex].isSeen = true;
         const userChatRef = doc(db, "userchats", currentUser.id);
 
         try {
-
             await updateDoc(userChatRef, {
                 chats: userChats
             });
             changeChat(chat.chatId, chat.user);
         } catch (error) {
-            console.log("error", error);
+            // console.log("error", error);
+            toast.error("Failed to update chat");
         }
     }
+
+    useEffect(() => {
+        if (window.location.pathname !== "/messages") {
+            setChats([])
+        }
+    }, [changeChat]);
+
 
     const filteredChats = chats.filter((chat) => chat.user.username.toLowerCase().includes(input.toLowerCase()));
 
@@ -79,7 +77,7 @@ const ChatList = () => {
                     onClick={() => setAddMode((prev) => !prev)} />
             </div>
             {
-                filteredChats.map((chat) => (
+                filteredChats?.map((chat) => (
                     <div className="item" key={chat?.chatId} onClick={() => handleSelect(chat)} >
                         <img src={chat.user.avatar || "./assets/avatar.png"} alt="" />
                         <div className="texts">
