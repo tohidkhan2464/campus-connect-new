@@ -3,9 +3,9 @@ import Login from "./pages/Login";
 import SignUp from "./pages/SignUp";
 import VerifyEmail from "./pages/VerifyEmail";
 import { Route, Routes } from "react-router-dom";
-import OpenRoute from "./components/core/Auth/OpenRoute";
+import OpenRoute from "./components/Auth/OpenRoute";
 import Home from "./pages/Home";
-import PrivateRoute from "./components/core/Auth/PrivateRoute";
+import PrivateRoute from "./components/Auth/PrivateRoute";
 import Dashboard from "./pages/Dashboard";
 import MyDash from "./components/core/Dashboard/MyDash";
 import Navbar from "./components/common/Navbar";
@@ -82,7 +82,7 @@ function App() {
             <Route path="/view-post/:postId" element={<PostCard />} />
             <Route path="/create" element={<CreatePost />} />
             <Route path="/search" element={<Search />} />
-            <Route path="/searchResults" element={<SearchResults />} />
+            <Route path="/search/:query" element={<SearchResults />} />
             {/* <Route path="/notifications" element={<Notifications />} /> */}
             {/* {user?.accountType === ACCOUNT_TYPE.INSTRUCTOR && (
               <>

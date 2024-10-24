@@ -1,21 +1,49 @@
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
-import { randomSearch } from "../services/operations/searchAPI";
-import { useSelector } from "react-redux";
+import {
+  postByCollege,
+  randomSearch,
+  searchPost,
+  searchUser,
+} from "../services/operations/searchAPI";
+import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
+import { setSearchData } from "../redux/slices/activitySlice";
+import toast from "react-hot-toast";
 
 const Search = () => {
   const [search, setSearch] = useState("");
   const { token } = useSelector((state) => state.auth);
+  const dispatch = useDispatch();
   const navigate = useNavigate();
-  const {
-    register,
-    handleSubmit,
-    reset,
-    formState: { isSubmitSuccessful },
-  } = useForm();
+  const { register, handleSubmit, reset } = useForm();
 
-  const submitSearch = (data) => {
+  const submitSearch = async (data) => {
+    console.log("submitSearch", data);
+    if (search === "posts") {
+      const result = await searchPost(token, data);
+      console.log("result", result);
+      setSearch("");
+      if (result.length > 0) {
+        dispatch(setSearchData(result));
+        navigate(`/search/postSearch`);
+      } else {
+        console.log("Error");
+        toast.error("No Data Found.");
+      }
+    }
+    if (search === "users") {
+      const result = await searchUser(token, data);
+      console.log("result", result);
+      setSearch("");
+      if (result.length > 0) {
+        dispatch(setSearchData(result));
+        navigate("/search/userSearch");
+      } else {
+        console.log("Error");
+        toast.error("No Data Found.");
+      }
+    }
     console.log("submitSearch", data);
     reset();
   };
@@ -43,13 +71,36 @@ const Search = () => {
               </button>
               <button
                 className="submit-button-style max-w-40"
-                onClick={async() => {
+                onClick={async () => {
                   setSearch("");
-                  await randomSearch(token);
-                  navigate("/searchResults");
+                  const result = await randomSearch(token);
+                  console.log("result", result);
+                  if (result.length > 0) {
+                    dispatch(setSearchData(result));
+                    navigate("/search/random");
+                  } else {
+                    console.log("Error");
+                    // toast.error("Error in fetching data");
+                  }
                 }}
               >
                 Random
+              </button>
+              <button
+                className="submit-button-style max-w-40"
+                onClick={async () => {
+                  setSearch("");
+                  const result = await postByCollege(token);
+                  console.log("result", result);
+                  if (result.length > 0) {
+                    dispatch(setSearchData(result));
+                    navigate("/search/college");
+                  } else {
+                    console.log("Error");
+                  }
+                }}
+              >
+                College
               </button>
             </div>
           </div>
@@ -87,7 +138,7 @@ const Search = () => {
                         type="text"
                         name="tags"
                         id="tags"
-                        placeholder="Enter the tags or captions."
+                        placeholder="Enter the tags"
                         className="input-style text-left p-2"
                         {...register("tags")}
                       />
@@ -99,23 +150,46 @@ const Search = () => {
                     </div>
                   </div>
                 </div>
+
+                <div>
+                  <div className="flex gap-x-10 items-center justify-between">
+                    <div className="flex flex-col w-[48%]">
+                      <input
+                        type="text"
+                        name="captions"
+                        id="captions"
+                        placeholder="Enter the captions"
+                        className="input-style text-left p-2"
+                        {...register("captions")}
+                      />
+                    </div>
+                    <div className="flex flex-col w-[38%]">
+                      <button className="submit-button-style" type="submit">
+                        Search by Captions
+                      </button>
+                    </div>
+                  </div>
+                </div>
               </div>
             </form>
           )}
 
           {search === "users" && (
-            <form className="w-9/12 mx-auto" onSubmit={submitSearch}>
+            <form
+              className="w-9/12 mx-auto"
+              onSubmit={handleSubmit(submitSearch)}
+            >
               <div className="flex flex-col justify-between mt-16 bg-white p-5 rounded-lg border-[3px] border-secondary-600 z-0">
                 <div>
                   <div className="flex gap-x-10 items-center justify-between">
                     <div className="flex flex-col w-[48%]">
                       <input
                         type="text"
-                        name="name"
-                        id="anme"
+                        name="firstName"
+                        id="firstName"
                         placeholder="Enter the name of user."
                         className="input-style text-left p-2"
-                        {...register("name")}
+                        {...register("firstName")}
                       />
                     </div>
                     <div className="flex flex-col w-[38%]">

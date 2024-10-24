@@ -8,9 +8,7 @@ import {
   signInWithEmailAndPassword,
 } from "firebase/auth";
 import { auth, db } from "../../lib/firebase";
-import { upload } from "@testing-library/user-event/dist/upload";
 import { doc, setDoc } from "firebase/firestore";
-import { useUserStore } from "../../lib/userStore";
 
 const {
   SENDOTP_API,
@@ -19,7 +17,6 @@ const {
   RESETPASSTOKEN_API,
   RESETPASSWORD_API,
 } = AuthEndpoints;
-// const { fetchUserInfo } = useUserStore;
 
 export function sendOtp(email, navigate) {
   return async (dispatch) => {
@@ -166,8 +163,10 @@ export function logout(navigate) {
   return (dispatch) => {
     dispatch(setToken(null));
     dispatch(setUser(null));
+    auth.signOut(auth.currentUser);
     localStorage.removeItem("token");
     localStorage.removeItem("user");
+    localStorage.clear();
     toast.success("Logged Out");
     navigate("/");
   };

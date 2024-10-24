@@ -31,13 +31,13 @@ const Messages = () => {
   return (
     <div className="w-10/12 h-full mx-auto flex items-start justify-center">
       <div className="w-11/12 mx-auto h-full flex items-start justify-start bg-[#111928bf] rounded-xl mt-10">
-        <div className="h-[800px] w-[30%] mx-auto flex  items-start justify-start border-r-2 border-r-white">
+        <div className={`h-[800px] ${chatId?"w-[100%]":"w-[30%]"} mx-auto flex  items-start justify-start border-r-2 border-r-white`}>
           <List />
           {chatId && <Chat />}
           {chatId && <Detail />}
         </div>
         {!chatId && (
-          <div className="h-[800px] w-[70%] mx-auto flex  items-center justify-center">
+          <div className={`h-[800px]  ${!chatId?"w-[70%]":"w-[0]"} mx-auto flex  items-center justify-center`}>
             <h1 className="text-white w-full text-4xl text-center">
               Select a chat to start messaging
             </h1>

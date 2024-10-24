@@ -209,7 +209,7 @@ exports.login = async (req, res) => {
     }
     // check user exists or not
     // let user = await User.findOne({ email }).populate("additionalDetails");
-    console.log("user login", user);
+    // console.log("user login", user);
     if (!user) {
       return res.status(401).json({
         success: false,

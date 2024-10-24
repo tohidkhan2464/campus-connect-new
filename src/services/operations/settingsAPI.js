@@ -3,8 +3,15 @@ import { setLoading, setToken } from "../../redux/slices/authSlice";
 import { setUser } from "../../redux/slices/profileSlice";
 import { apiConnector } from "../apiConnector";
 import { settingsEndpoints } from "../api";
-import { doc, updateDoc } from "firebase/firestore";
-import { db } from "../../lib/firebase";
+import {
+  deleteDoc,
+  deleteField,
+  doc,
+  getDoc,
+  updateDoc,
+} from "firebase/firestore";
+import { auth, db } from "../../lib/firebase";
+import { updatePassword } from "firebase/auth";
 
 const {
   UPDATE_DISPLAY_PICTURE_API,
@@ -102,8 +109,9 @@ export function updateDisplayPicture(token, formData) {
   };
 }
 
-export function updatePassword(token, data) {
+export function updateCurrentPassword(token, navigate, data) {
   return async (dispatch) => {
+    console.log("DATA updatePassword", data);
     const toastId = toast.loading("Loading...");
     dispatch(setLoading(true));
     try {
@@ -116,13 +124,25 @@ export function updatePassword(token, data) {
         },
       });
 
+      console.log("UPDATE PASSWORD RESPONSE", response);
+
       if (!response.data.success) {
         throw new Error(response.data.message);
+      } else {
+        const user = auth.currentUser;
+        updatePassword(user, data?.newPassword)
+          .then(() => {
+            console.log("Password Updated Successfully");
+            toast.success("Password Updated Successfully");
+            navigate("/my-profile");
+          })
+          .catch((error) => {
+            console.log("ERROR Firebase", error);
+            toast.error("Could Not Update Password");
+          });
       }
-
-      toast.success("Update Successful");
     } catch (error) {
-      toast.error(error?.response?.data?.message || "Failed");
+      toast.error(error);
     }
     dispatch(setLoading(false));
     toast.dismiss(toastId);
@@ -130,9 +150,6 @@ export function updatePassword(token, data) {
 }
 
 export function deleteProfile(token, data, navigate) {
-  // console.log("token", token);
-  // console.log("data", data);
-  // console.log("navigate", navigate);
   return async (dispatch) => {
     const toastId = toast.loading("Loading...");
     dispatch(setLoading(true));
@@ -146,18 +163,16 @@ export function deleteProfile(token, data, navigate) {
         },
       });
 
+      console.log("DELETE PROFILE RESPONSE", response);
+
       if (!response.data.success) {
         throw new Error(response.data.message);
       } else {
-        console.log("REAPONSE", response);
-        let userRef = this.database.ref("users/" + response?.userData?._id);
-        userRef.remove();
-        let userchatsRef = this.database.ref(
-          "userchats/" + response?.userData?._id
-        );
-        userchatsRef.remove();
+        await deleteDoc(doc(db, "userchats", response?.data?.data?._id));
+        await deleteDoc(doc(db, "users", response?.data?.data?._id));
         dispatch(setToken(null));
         dispatch(setUser(null));
+        auth.currentUser.delete();
         localStorage.removeItem("token");
         localStorage.removeItem("user");
         toast.success("Logged Out");
@@ -165,6 +180,7 @@ export function deleteProfile(token, data, navigate) {
         toast.success("Account Deleted Successful");
       }
     } catch (error) {
+      console.log("Error in delete profile", error);
       toast.error(error?.response?.data?.message || "Failed");
     }
     dispatch(setLoading(false));

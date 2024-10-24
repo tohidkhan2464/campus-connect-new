@@ -41,7 +41,9 @@ const OtherUserProfile = () => {
         <div className="w-8/12 mx-auto h-full flex items-center justify-center">
           {/* Heading */}
           <div className="h-full w-11/12 flex flex-col items-center justify-center gap-y-5">
-            <p className="text-center text-2xl font-semibold">User Profile</p>
+            <p className="text-center text-4xl underline font-semibold">
+              User Profile
+            </p>
             <div className="flex flex-col justify-center items-center w-10/12 gap-y-10">
               {/* Details div */}
               <div

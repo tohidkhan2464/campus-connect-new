@@ -1,20 +1,36 @@
 const User = require("../models/User");
 const Post = require("../models/Post");
+const Profile = require("../models/Profile");
 
 exports.getCollegeNews = async (req, res) => {
   try {
     const userId = req.user.id;
 
-    const userDetails = await User.findById(userId);
+    const userDetails = await User.findById(userId)
+      .populate("additionalDetails")
+      .exec();
 
-    const userCollege = userDetails.collegeName;
+    if (!userDetails) {
+      return res.status(404).json({
+        success: false,
+        message: "No user found with the provided username",
+      });
+    }
+    const userCollege = userDetails?.additionalDetails?.collegeName;
+
+    if (!userCollege) {
+      return res.status(404).json({
+        success: false,
+        message: "No college found for the user",
+      });
+    }
 
     const usersCollegues = await User.find({}, { collegeName: userCollege });
 
     if (!usersCollegues) {
       return res.status(200).json({
         success: true,
-        message: "No user found",
+        message: "No collegues found",
       });
     }
 
@@ -26,14 +42,14 @@ exports.getCollegeNews = async (req, res) => {
     if (!posts) {
       return res.status(200).json({
         success: true,
-        message: "No post found",
+        message: "No posts found",
       });
     }
 
     return res.status(200).json({
       success: true,
       message: "Posts found",
-      posts: posts,
+      data: posts,
     });
   } catch (err) {
     console.log(err);
@@ -47,23 +63,40 @@ exports.getCollegeNews = async (req, res) => {
 exports.searchUser = async (req, res) => {
   try {
     const { firstName = "", userName = "", collegeName = "" } = req.body;
-
-    const users = [];
+    console.log("First Name-> ", firstName);
+    console.log("Username-> ", userName);
+    console.log("College Name-> ", collegeName);
+    let users = [];
 
     if (userName) {
-      const profileDetails = await User.find({ userName: userName });
-      users.push(profileDetails);
+      const profileDetails = await User.find({ userName: userName })
+        .populate("additionalDetails")
+        .exec();
+      console.log("UserName Profile Details-> ", profileDetails);
+      users = users.concat(profileDetails);
     }
 
     if (collegeName) {
-      const collegeDetails = await User.find({ collegeName: collegeName });
-      users.push(collegeDetails);
+      const userLists = await Profile.find({ collegeName: collegeName });
+      const userIds = userLists.map((user) => user._id);
+      const collegeDetails = await User.find({ _id: { $in: userIds } })
+        .populate("additionalDetails")
+        .sort({ createdAt: -1 });
+      console.log("collegeName College Details-> ", collegeDetails);
+      users = users.concat(collegeDetails);
     }
 
     if (firstName) {
-      const search = await User.find({ firstName: firstName });
-      users.push(search);
+      const search = await User.find({
+        $or: [{ firstName: firstName }, { lastName: firstName }],
+      })
+        .populate("additionalDetails")
+        .exec();
+      console.log("First Name Search-> ", search);
+      users = users.concat(search);
     }
+
+    users = users.filter((user) => user._id.toString() !== req.user.id);
 
     if (!users) {
       return res.status(404).json({
@@ -75,7 +108,7 @@ exports.searchUser = async (req, res) => {
     return res.status(200).json({
       success: true,
       message: "User found",
-      users: users,
+      data: users,
     });
   } catch (err) {
     console.log(err);
@@ -88,27 +121,44 @@ exports.searchUser = async (req, res) => {
 
 exports.searchPost = async (req, res) => {
   try {
-    const { tags = "", userName = "" } = req.body;
+    const { tags = "", username = "", captions = "" } = req.body;
 
-    const posts = [];
+    let posts = [];
+    console.log("Tags-> ", tags);
+    console.log("Username-> ", username);
+    console.log("Captions-> ", captions);
 
-    if (userName) {
-      const userDetails = await User.find({}, { userName: userName })
-        .populate("posts")
-        .exec();
-      console.log("UserDetails-> ", userDetails);
-      const postDetails = await Post.find({ userId: userDetails._id }).sort({
+    if (username) {
+      const userDetails = await User.findOne({ userName: username });
+      console.log("Post Search User Details-> ", userDetails);
+      if (!userDetails) {
+        return res.status(404).json({
+          success: false,
+          message: "No user found with the provided username",
+        });
+      }
+      const postDetails = await Post.find({ user: userDetails._id }).sort({
         postedAt: -1,
       });
-      posts.push(postDetails);
+      console.log("User PostDetails-> ", postDetails);
+      posts = posts.concat(postDetails);
     }
 
     if (tags) {
       const postDetails = await Post.find({ tags: { $in: tags.split(" ") } });
-      posts.push(postDetails);
+      console.log("Tags PostDetails-> ", postDetails);
+      posts = posts.concat(postDetails);
     }
 
-    if (!posts) {
+    if (captions) {
+      const postDetails = await Post.find({
+        $text: { $search: captions },
+      }).sort({ postedAt: -1 });
+      console.log("Caption PostDetails-> ", postDetails);
+      posts = posts.concat(postDetails);
+    }
+
+    if (posts.length === 0) {
       return res.status(404).json({
         success: false,
         message: "No posts found",
@@ -117,14 +167,14 @@ exports.searchPost = async (req, res) => {
 
     return res.status(200).json({
       success: true,
-      message: "posts found",
-      posts: posts,
+      message: "Posts found",
+      data: posts,
     });
   } catch (err) {
     console.log(err);
     return res.status(500).json({
       success: false,
-      message: err.message + "error while searching for posts",
+      message: err.message + " error while searching for posts",
     });
   }
 };
@@ -143,7 +193,7 @@ exports.searchHome = async (req, res) => {
     return res.status(200).json({
       success: true,
       message: "posts found",
-      posts: postDetails,
+      data: postDetails,
     });
   } catch (err) {
     console.log(err);

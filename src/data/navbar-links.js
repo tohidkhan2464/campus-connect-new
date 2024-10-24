@@ -35,13 +35,13 @@ export const NavbarLinks = [
   {
     title: "Profile",
     path: "/my-profile",
-    icon: "HiOutlinePlusCircle",
   },
   {
-    title: "More",
-    path: "/more",
-    icon: "HiOutlineViewList",
+    title: "Settings",
+    path: "/settings",
+    icon: "HiOutlineCog",
   },
+
   // Lecturer Routes
   {
     title: "Broad-casting",

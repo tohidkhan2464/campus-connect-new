@@ -95,19 +95,19 @@ export async function getAllUsers() {
 
 export async function sendFollowRequest(receivingUserId, token) {
   const toastId = toast.loading("loading...");
-  // console.log("RECEIVER", receivingUserId);
+  console.log("RECEIVER", receivingUserId);
   let result = [];
   try {
     const response = await apiConnector({
       method: "POST",
       url: SEND_FOLLOW_REQUEST_API,
-      bodyData: receivingUserId,
+      bodyData: { receivingUserId },
       headers: {
         Authorization: `Bearer ${token}`,
       },
     });
 
-    // console.log("RESPONSE SEND_FOLLOW_REQUEST_API", response);
+    console.log("RESPONSE SEND_FOLLOW_REQUEST_API", response);
 
     if (!response.data.success) {
       throw new Error(response.data.message);

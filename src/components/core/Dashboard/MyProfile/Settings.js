@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useDispatch, useSelector } from "react-redux";
-import { updatePassword } from "../../../../services/operations/settingsAPI";
+import { updateCurrentPassword } from "../../../../services/operations/settingsAPI";
 import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 import { CiTrash } from "react-icons/ci";
@@ -23,7 +23,7 @@ const Settings = () => {
 
   const submitProfileForm = (data) => {
     try {
-      dispatch(updatePassword(token, data));
+      dispatch(updateCurrentPassword(token, navigate, data));
     } catch (error) {
       toast.error("Something went wrong. Try again.");
     }

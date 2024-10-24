@@ -44,7 +44,8 @@ const AddUser = () => {
     // console.log("currentUser", currentUser);
 
     const handleAdd = async (event) => {
-        const followRequestResult = await sendFollowRequest(token, user.id);
+        const followRequestResult = await sendFollowRequest(user.id, token);
+        console.log("followRequestResult", followRequestResult);
         if (followRequestResult.receiverUserDetails._id === user.id) {
 
             const chatRef = collection(db, "chats");

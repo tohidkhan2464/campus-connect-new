@@ -113,8 +113,8 @@ const PostCard = () => {
 
             {/* Post Content */}
             <div className="flex flex-row mx-auto w-full">
-              <div className="max-h-[400px] w-[50%] p-2 bg-white border-t-[2px] border-t-secondary-600 border-r-[2px] border-r-secondary-600">
-                <img src={postData?.postImageUrl} className="rounded-xl" />
+              <div className="max-h-[400px] flex items-center justify-center w-[50%] p-2 bg-white border-t-[2px] border-t-secondary-600 border-r-[2px] border-r-secondary-600">
+                <img src={postData?.postImageUrl} className="rounded-xl object-contain h-full" />
               </div>
               {/* Comments */}
               <div className="relative flex flex-col w-[50%] max-h-[400px]">

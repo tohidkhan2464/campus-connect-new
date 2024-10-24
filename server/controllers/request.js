@@ -202,13 +202,17 @@ exports.acceptRequest = async (req, res) => {
 exports.sendFollowRequest = async (req, res) => {
   try {
     const { receivingUserId } = req.body;
+
+    if (!receivingUserId) {
+      return res.status(400).json({
+        success: false,
+        message: "receivingUserId is required in the request body",
+      });
+    }
+    
+    console.log("RECEIVING req.body", req.body);
     const sendingUserId = req.user.id;
-    console.log(
-      "SENDING",
-      typeof sendingUserId,
-      "RECEIVING",
-      typeof receivingUserId
-    );
+    console.log("SENDING", sendingUserId, "RECEIVING", receivingUserId);
 
     let receiverUserDetails;
     let sendingUserDetails;

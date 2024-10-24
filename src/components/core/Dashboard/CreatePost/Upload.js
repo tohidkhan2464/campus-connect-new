@@ -65,8 +65,16 @@ export default function Upload({
         className={`${
           isDragActive ? "bg-richblack-600" : "bg-white"
         } flex min-h-[250px] cursor-pointer items-center outline-none border-slate-300 p-2 mt-2 justify-center rounded-md border-2 `}
+        {...getRootProps()}
+        onClick={() => inputRef.current.click()} // Ensure file explorer opens
       >
+        <input
+          {...getInputProps()}
+          ref={inputRef}
+          style={{ display: "none" }}
+        />
         {previewSource ? (
+          // Show preview if file is selected
           <div className="flex w-full flex-col px-6 py-4">
             {!video ? (
               <img
@@ -81,7 +89,8 @@ export default function Upload({
               <button
                 type="button"
                 className="mt-2 text-richblack-400 underline"
-                onClick={() => {
+                onClick={(e) => {
+                  e.stopPropagation();
                   setPreviewSource("");
                   setSelectedFile(null);
                   setValue(name, null);
@@ -92,11 +101,8 @@ export default function Upload({
             )}
           </div>
         ) : (
-          <div
-            className="flex w-full flex-col items-center p-6 min-w-[320px]"
-            {...getRootProps()}
-          >
-            <input {...getInputProps()} ref={inputRef} />
+          // Show prompt when no file is selected
+          <div className="flex w-full flex-col items-center p-6 min-w-[320px]">
             <div className="grid aspect-square w-14 place-items-center rounded-full bg-pure-greys-800">
               <FiUploadCloud className="text-2xl text-secondary-400" />
             </div>

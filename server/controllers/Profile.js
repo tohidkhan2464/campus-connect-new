@@ -93,23 +93,12 @@ exports.deleteAccount = async (req, res) => {
     }
     if (await bcrypt.compare(currentPassword, userData.password)) {
       // delete profile
-      console.log("INSIDE 1");
       await Profile.findByIdAndDelete({ _id: userData?.additionalDetails });
       // delete related likes
-      console.log("INSIDE 2");
       await Post.updateMany({}, { $pull: { likes: userId } }, { new: true });
-
-      // delete related comments
-      console.log("INSIDE 3");
-      //   const result = await RatingAndReview.aggregate(
-      //     { $match: { course: new Mongoose.Types.ObjectId(courseId), }, },
-      //     { $group: { _id: null, averageRating: { $avg: "$rating" }, } },
-      // );
-
       // const commentUser = Mongoose.Types.ObjectId(userId);
       if (await Comment.find({ userDetails: userId })) {
         const comments = await Comment.find({ userDetails: userId });
-        console.log("INSIDE 4");
         // console.log("COMMENTS", comments);
         if (comments) {
           await Post.updateMany(
@@ -117,33 +106,24 @@ exports.deleteAccount = async (req, res) => {
             { $pull: { comments: { $in: comments } } },
             { new: true }
           );
-          console.log("INSIDE 5");
-          console.log("comments[0]", comments[0]);
-
           comments.forEach((element) => {
-            console.log("Comment", element);
             Comment.deleteMany({ _id: element._id });
           });
-          console.log("INSIDE 5 4");
         }
       }
-      console.log("INSIDE 6");
       // delete related post
       await Post.deleteMany({ _id: { $in: userData.posts } });
-      console.log("INSIDE 7");
       // deleted related followings
-
       // delete related followers
       // await User.find({}, { $pull: { follower: userId } }, { new: true });
       // await User.find({}, { $pull: { pendingFollowing: userId } }, { new: true });
 
       // delete user
       await User.findByIdAndDelete({ _id: userId });
-      console.log("INSIDE 7");
       // return response
       return res.status(200).json({
         success: true,
-        userData,
+        data: userData,
         message: "User Deleted successfully.",
       });
     }
